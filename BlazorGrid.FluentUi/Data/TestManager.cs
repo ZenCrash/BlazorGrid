@@ -2,9 +2,9 @@
 
 namespace BlazorGrid.FluentUi.Data
 {
-  public class TestManager
+  public static class TestManager
   {
-    public ICollection<Person> GetAll()
+    public static ICollection<Person> GetAllPeople()
     {
       return new List<Person>()
       {

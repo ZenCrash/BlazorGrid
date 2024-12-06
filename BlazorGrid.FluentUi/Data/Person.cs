@@ -11,7 +11,17 @@
     public enum Sex
     {
       Male,
-      Female
-    }
+      Female,
+      A,
+			B,
+			C,
+			D,
+			E,
+			F,
+			G,
+			H,
+			I,
+			J,
+		}
   }
 }

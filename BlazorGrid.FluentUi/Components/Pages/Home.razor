@@ -1,46 +1,169 @@
 ﻿@using BlazorGrid.FluentUi.Data
-
-
-@page "/"
-@using BlazorGrid.FluentUi.Data
 @using Microsoft.FluentUI.AspNetCore.Components
-@inject TestManager TestManager
+
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+@page "/"
+
+<style>
+  .fluent-combobox .fluent-listbox {
+    z-index: -1;
+    position: absolute;
+  }
+
+  .fluent-datagrid {
+    overflow: visible !important;
+  }
+</style>
 
 <PageTitle>Row Editable Grid</PageTitle>
 
-<FluentDataGrid TItem="Person" Items="people" @ref="grid" EditMode="DataGridEditMode.Row">
-    <Columns>
-        <DataGridColumn TItem="Person" Field="p => p.Id" Title="ID" />
-        <DataGridColumn TItem="Person" Field="p => p.Name" Title="Name" />
-        <DataGridColumn TItem="Person" Field="p => p.Description" Title="Description" />
-        <DataGridColumn TItem="Person" Field="p => p.Title" Title="Title" />
-        <DataGridColumn TItem="Person" Field="p => p.Gender" Title="Gender" />
-        <DataGridCommandColumn TItem="Person">
-            <CommandButton Text="Save" OnClick="OnSaveClick" />
-        </DataGridCommandColumn>
-    </Columns>
-</FluentDataGrid>
+<h3>View Grid</h3>
+
+<div class="p-1">
+  <div class="card shadow-sm p-2">
+    <FluentDataGrid Items="GridItems">
+      <PropertyColumn Title="Id" Property="@(x => x!.Id)" />
+      <PropertyColumn Title="Name" Property="@(x => x!.Name)" />
+      <PropertyColumn Title="Description" Property="@(x => x!.Description)" />
+      <PropertyColumn Title="Title" Property="@(x => x!.Title)" />
+      <PropertyColumn Title="Gender" Property="@(x => x!.Gender.ToString())" />
+    </FluentDataGrid>
+  </div>
+</div>
+
+<h3 class="my-3">Edit Row Grid</h3>
+
+<div class="p-1">
+  <div class="card shadow-sm p-2">
+    <FluentDataGrid Items="GridItems" TGridItem="Person" OnRowClick="Grid_OnRowClick" OnCellClick="Grid_OnCellClick">
+      <TemplateColumn Title="Id">
+        @if (SelectedItem! == null || SelectedItem!.Id != context!.Id)
+        {
+          <div>@context!.Id</div>
+        }
+        else
+        {
+          <FluentNumberField @bind-Value="@context!.Id" ReadOnly/> 
+        }
+      </TemplateColumn>
+      <TemplateColumn Title="Name">
+
+        @if (SelectedItem! == null || SelectedItem!.Id != context!.Id)
+        {
+          <div>@context!.Name</div>
+        }
+        else
+        {
+          <FluentTextField @bind-Value="@context!.Name" />
+        }
+      </TemplateColumn>
+      <TemplateColumn Title="Description">
+        @if (SelectedItem! == null || SelectedItem!.Id != context!.Id)
+        {
+          <div>@context!.Description</div>
+        }
+        else
+        {
+          <FluentTextField @bind-Value="@context!.Description" />
+        }
+
+      </TemplateColumn>
+      <TemplateColumn Title="Title">
+        @if (SelectedItem! == null || SelectedItem!.Id != context!.Id)
+        {
+          <div>@context!.Title</div>
+        }
+        else
+        {
+          <FluentTextField @bind-Value="@context!.Title" />
+        }
+
+      </TemplateColumn>
+      <TemplateColumn Title="Gender">
+        @if (SelectedItem! == null || SelectedItem!.Id != context!.Id)
+        {
+          <div>@context!.Gender</div>
+        }
+        else
+        {
+          <FluentCombobox Id="Combobox"
+            Placeholder="Select Gender"
+            OptionSelected="@(x => x.Selected)"
+            OptionText="@(x => x.Text)"
+            OptionValue="@(x => x.Value.ToString())"
+            OptionDisabled="@(x => x.Disabled)"
+            Height="200px"
+
+            Items="@ValueOptions"
+            TOption="Option<Person.Sex>"
+            @bind-SelectedOption="@SelectedOption"
+            @bind-Value="ValueHolder"
+            Class="custom-dropdown-class">
+          </FluentCombobox>
+        }
+      </TemplateColumn>
+    </FluentDataGrid>
+  </div>
+</div>
 
 @code {
-    private ICollection<Person> people;
-    private FluentDataGrid<Person> grid;
+  private IQueryable<Person>? GridItems;
+  private Person? SelectedItem;
+  private int SelectedRow;
+  private int SelectedCell;
+  private EditMode SelectedEditMode = EditMode.Row;
 
-    protected override void OnInitialized()
+  //Combobox
+  string? ValueHolder;
+  Option<Person.Sex> SelectedOption = new();
+  List<Option<Person.Sex>> ValueOptions = new();
+
+  //gender is an enum called sex, values: male. female
+  protected override void OnInitialized()
+  {
+    UpdateCollection();
+
+    SetOptions();
+  }
+
+  private void SetOptions()
+  {
+    foreach (var item in Enum.GetValues(typeof(Person.Sex)))
     {
-        // Initialize the people data from TestManager
-        people = TestManager.GetAll();
+        ValueOptions.Add(new Option<Person.Sex>
+        { 
+            Text = item.ToString(), 
+            Value = (Person.Sex)item
+        });
     }
+  }
 
-    private async Task OnSaveClick(DataGridRowClickEventArgs<Person> args)
-    {
-        // Simulate sending the updated row to the TestManager
-        var updatedPerson = args.Item;
+  private void UpdateCollection()
+  {
+    GridItems = TestManager.GetAllPeople().AsQueryable();
+  }
 
-        // Here you would typically call a method to persist the updated person.
-        // For now, we just simulate the method.
-        await TestManager.UpdatePerson(updatedPerson);
-        
-        // Refresh the grid or perform additional actions as needed.
-        StateHasChanged();
-    }
+  //-----------------------------//
+  /* Grid Events                 */
+  //-----------------------------//
+
+
+  private async Task Grid_OnRowClick(FluentDataGridRow<Person> row)
+  {
+    if (SelectedEditMode == EditMode.Row)
+      SelectedItem = row.Item;
+  }
+
+
+  private async Task Grid_OnCellClick(FluentDataGridCell<Person> cell)
+  {
+    if (SelectedEditMode == EditMode.Cell)
+      SelectedItem = cell.Item;
+  }
+
+  private enum EditMode
+  {
+    Cell,
+    Row
+  }
 }

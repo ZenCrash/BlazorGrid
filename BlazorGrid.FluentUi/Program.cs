@@ -13,7 +13,10 @@ namespace BlazorGrid.FluentUi
       builder.Services.AddRazorComponents()
           .AddInteractiveServerComponents();
 
-      builder.Services.AddScoped<IToastService, ToastService>();
+			builder.Services.AddFluentUIComponents();
+			builder.Services.AddScoped<IToastService, ToastService>();
+
+
 
       var app = builder.Build();
 
