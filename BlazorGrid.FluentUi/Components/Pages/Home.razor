@@ -1,7 +1,46 @@
-﻿@page "/"
+﻿@using BlazorGrid.FluentUi.Data
 
-<PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+@page "/"
+@using BlazorGrid.FluentUi.Data
+@using Microsoft.FluentUI.AspNetCore.Components
+@inject TestManager TestManager
 
-Welcome to your new app.
+<PageTitle>Row Editable Grid</PageTitle>
+
+<FluentDataGrid TItem="Person" Items="people" @ref="grid" EditMode="DataGridEditMode.Row">
+    <Columns>
+        <DataGridColumn TItem="Person" Field="p => p.Id" Title="ID" />
+        <DataGridColumn TItem="Person" Field="p => p.Name" Title="Name" />
+        <DataGridColumn TItem="Person" Field="p => p.Description" Title="Description" />
+        <DataGridColumn TItem="Person" Field="p => p.Title" Title="Title" />
+        <DataGridColumn TItem="Person" Field="p => p.Gender" Title="Gender" />
+        <DataGridCommandColumn TItem="Person">
+            <CommandButton Text="Save" OnClick="OnSaveClick" />
+        </DataGridCommandColumn>
+    </Columns>
+</FluentDataGrid>
+
+@code {
+    private ICollection<Person> people;
+    private FluentDataGrid<Person> grid;
+
+    protected override void OnInitialized()
+    {
+        // Initialize the people data from TestManager
+        people = TestManager.GetAll();
+    }
+
+    private async Task OnSaveClick(DataGridRowClickEventArgs<Person> args)
+    {
+        // Simulate sending the updated row to the TestManager
+        var updatedPerson = args.Item;
+
+        // Here you would typically call a method to persist the updated person.
+        // For now, we just simulate the method.
+        await TestManager.UpdatePerson(updatedPerson);
+        
+        // Refresh the grid or perform additional actions as needed.
+        StateHasChanged();
+    }
+}
