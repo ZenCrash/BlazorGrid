@@ -6,12 +6,12 @@
 
 <style>
   .fluent-combobox .fluent-listbox {
-    z-index: -1;
-    position: absolute;
+  z-index: -1;
+  position: absolute;
   }
 
   .fluent-datagrid {
-    overflow: visible !important;
+  overflow: visible !important;
   }
 </style>
 
@@ -37,7 +37,7 @@
   <div class="card shadow-sm p-2">
     <FluentDataGrid Items="GridItems" TGridItem="Person" OnRowClick="Grid_OnRowClick" OnCellClick="Grid_OnCellClick">
       <TemplateColumn Title="Id">
-        @if (SelectedItem! == null || SelectedItem!.Id != context!.Id)
+        @if (SelectedItem! == null || !(SelectedEditMode == EditMode.Row && SelectedItem!.Id == context!.Id) || !(SelectedEditMode == EditMode.Cell && SelectedColumn == 1))
         {
           <div>@context!.Id</div>
         }
@@ -48,7 +48,7 @@
       </TemplateColumn>
       <TemplateColumn Title="Name">
 
-        @if (SelectedItem! == null || SelectedItem!.Id != context!.Id)
+        @if (SelectedItem! != null && (!(SelectedEditMode == EditMode.Row && SelectedItem!.Id == context!.Id) || !(SelectedEditMode == EditMode.Cell && SelectedColumn == 2)))
         {
           <div>@context!.Name</div>
         }
@@ -58,7 +58,7 @@
         }
       </TemplateColumn>
       <TemplateColumn Title="Description">
-        @if (SelectedItem! == null || SelectedItem!.Id != context!.Id)
+        @if (SelectedItem! == null || !(SelectedEditMode == EditMode.Row && SelectedItem!.Id == context!.Id) || !(SelectedEditMode == EditMode.Cell && SelectedColumn == 3))
         {
           <div>@context!.Description</div>
         }
@@ -69,7 +69,7 @@
 
       </TemplateColumn>
       <TemplateColumn Title="Title">
-        @if (SelectedItem! == null || SelectedItem!.Id != context!.Id)
+        @if (SelectedItem! == null || !(SelectedEditMode == EditMode.Row && SelectedItem!.Id == context!.Id) || !(SelectedEditMode == EditMode.Cell && SelectedColumn == 4))
         {
           <div>@context!.Title</div>
         }
@@ -80,25 +80,25 @@
 
       </TemplateColumn>
       <TemplateColumn Title="Gender">
-        @if (SelectedItem! == null || SelectedItem!.Id != context!.Id)
+        @if (SelectedItem! == null || !(SelectedEditMode == EditMode.Row && SelectedItem!.Id == context!.Id) || !(SelectedEditMode == EditMode.Cell && SelectedColumn == 5))
         {
           <div>@context!.Gender</div>
         }
         else
         {
           <FluentCombobox Id="Combobox"
-            Placeholder="Select Gender"
-            OptionSelected="@(x => x.Selected)"
-            OptionText="@(x => x.Text)"
-            OptionValue="@(x => x.Value.ToString())"
-            OptionDisabled="@(x => x.Disabled)"
-            Height="200px"
+          Placeholder="Select Gender"
+          OptionSelected="@(x => x.Selected)"
+          OptionText="@(x => x.Text)"
+          OptionValue="@(x => x.Value.ToString())"
+          OptionDisabled="@(x => x.Disabled)"
+          Height="200px"
 
-            Items="@ValueOptions"
-            TOption="Option<Person.Sex>"
-            @bind-SelectedOption="@SelectedOption"
-            @bind-Value="ValueHolder"
-            Class="custom-dropdown-class">
+          Items="@ValueOptions"
+          TOption="Option<Person.Sex>"
+          @bind-SelectedOption="@SelectedOption"
+          @bind-Value="ValueHolder"
+          Class="custom-dropdown-class">
           </FluentCombobox>
         }
       </TemplateColumn>
@@ -109,9 +109,8 @@
 @code {
   private IQueryable<Person>? GridItems;
   private Person? SelectedItem;
-  private int SelectedRow;
-  private int SelectedCell;
-  private EditMode SelectedEditMode = EditMode.Row;
+  private int SelectedColumn;
+  private EditMode SelectedEditMode = EditMode.Cell;
 
   //Combobox
   string? ValueHolder;
@@ -130,7 +129,7 @@
   {
     foreach (var item in Enum.GetValues(typeof(Person.Sex)))
     {
-        ValueOptions.Add(new Option<Person.Sex>
+      ValueOptions.Add(new Option<Person.Sex>
         { 
             Text = item.ToString(), 
             Value = (Person.Sex)item
@@ -158,7 +157,10 @@
   private async Task Grid_OnCellClick(FluentDataGridCell<Person> cell)
   {
     if (SelectedEditMode == EditMode.Cell)
+    {
       SelectedItem = cell.Item;
+      SelectedColumn = cell.GridColumn;
+    }
   }
 
   private enum EditMode
