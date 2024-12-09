@@ -37,7 +37,9 @@
   <div class="card shadow-sm p-2">
     <FluentDataGrid Items="GridItems" TGridItem="Person" OnRowClick="Grid_OnRowClick" OnCellClick="Grid_OnCellClick">
       <TemplateColumn Title="Id">
-        @if (SelectedItem! == null || !(SelectedEditMode == EditMode.Row && SelectedItem!.Id == context!.Id) || !(SelectedEditMode == EditMode.Cell && SelectedColumn == 1))
+        @if (SelectedItem == null ||
+        !(SelectedEditMode == EditMode.Row && context.Id == SelectedItem.Id) &&
+        !(SelectedEditMode == EditMode.Cell && context.Id == SelectedItem.Id && SelectedColumn == 1))
         {
           <div>@context!.Id</div>
         }
@@ -47,8 +49,9 @@
         }
       </TemplateColumn>
       <TemplateColumn Title="Name">
-
-        @if (SelectedItem! != null && (!(SelectedEditMode == EditMode.Row && SelectedItem!.Id == context!.Id) || !(SelectedEditMode == EditMode.Cell && SelectedColumn == 2)))
+        @if (SelectedItem == null ||
+        !(SelectedEditMode == EditMode.Row && context.Id == SelectedItem.Id) &&
+        !(SelectedEditMode == EditMode.Cell && context.Id == SelectedItem.Id && SelectedColumn == 2))
         {
           <div>@context!.Name</div>
         }
@@ -58,7 +61,9 @@
         }
       </TemplateColumn>
       <TemplateColumn Title="Description">
-        @if (SelectedItem! == null || !(SelectedEditMode == EditMode.Row && SelectedItem!.Id == context!.Id) || !(SelectedEditMode == EditMode.Cell && SelectedColumn == 3))
+        @if (SelectedItem == null ||
+        !(SelectedEditMode == EditMode.Row && context.Id == SelectedItem.Id) &&
+        !(SelectedEditMode == EditMode.Cell && context.Id == SelectedItem.Id && SelectedColumn == 3))
         {
           <div>@context!.Description</div>
         }
@@ -69,7 +74,9 @@
 
       </TemplateColumn>
       <TemplateColumn Title="Title">
-        @if (SelectedItem! == null || !(SelectedEditMode == EditMode.Row && SelectedItem!.Id == context!.Id) || !(SelectedEditMode == EditMode.Cell && SelectedColumn == 4))
+        @if (SelectedItem == null ||
+        !(SelectedEditMode == EditMode.Row && context.Id == SelectedItem.Id) &&
+        !(SelectedEditMode == EditMode.Cell && context.Id == SelectedItem.Id && SelectedColumn == 4))
         {
           <div>@context!.Title</div>
         }
@@ -80,7 +87,9 @@
 
       </TemplateColumn>
       <TemplateColumn Title="Gender">
-        @if (SelectedItem! == null || !(SelectedEditMode == EditMode.Row && SelectedItem!.Id == context!.Id) || !(SelectedEditMode == EditMode.Cell && SelectedColumn == 5))
+        @if (SelectedItem == null ||
+        !(SelectedEditMode == EditMode.Row && context.Id == SelectedItem.Id) &&
+        !(SelectedEditMode == EditMode.Cell && context.Id == SelectedItem.Id && SelectedColumn == 5))
         {
           <div>@context!.Gender</div>
         }
@@ -110,7 +119,7 @@
   private IQueryable<Person>? GridItems;
   private Person? SelectedItem;
   private int SelectedColumn;
-  private EditMode SelectedEditMode = EditMode.Cell;
+  private EditMode SelectedEditMode = EditMode.Row;
 
   //Combobox
   string? ValueHolder;
